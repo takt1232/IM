@@ -1,0 +1,65 @@
+document.addEventListener("DOMContentLoaded", function() {
+    var statusElements = document.querySelectorAll(".order-table .status");
+
+    for (var i = 0; i < statusElements.length; i++) {
+        var statusValue = statusElements[i].textContent;
+
+        if (statusValue === "received") {
+            statusElements[i].classList.add("received");
+        } else if (statusValue === "cancelled") {
+            statusElements[i].classList.add("cancelled");
+        } else if (statusValue === "pending") {
+            statusElements[i].classList.add("pending");
+        }
+    }
+});
+
+function openViewOrderPopup(orderId, userId) {
+        var tableBody = document.querySelector("#view-form .order-table tbody");
+        tableBody.innerHTML = ""; // Clear any existing rows
+
+        // Make an AJAX request to fetch product details
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "store_get_product_details.php?orderId=" + orderId + "&storeId=" + userId, true);
+
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                // Success
+                var productDetails = JSON.parse(xhr.responseText);
+
+                productDetails.forEach(function(item) {
+                    var row = document.createElement("tr");
+                    var productNameCell = document.createElement("td");
+                    productNameCell.textContent = item.product_name;
+
+                    var quantityCell = document.createElement("td");
+                    quantityCell.textContent = item.quantity;
+
+                    var priceCell = document.createElement("td");
+                    priceCell.textContent = '₱' + item.price;
+
+                    var supplierCell = document.createElement("td");
+                    supplierCell.textContent = item.supplier_name;
+
+                    row.appendChild(productNameCell);
+                    row.appendChild(quantityCell);
+                    row.appendChild(priceCell);
+                    row.appendChild(supplierCell);
+
+                    tableBody.appendChild(row);
+                });
+
+                // Show the view-form
+                document.getElementById("view-form").style.display = "block";
+            } else {
+                // Error
+                console.error('Error fetching product details');
+            }
+        };
+
+        xhr.send();
+    }
+
+    function closeViewOrderPopup() {
+        document.getElementById("view-form").style.display = "none";
+    }
