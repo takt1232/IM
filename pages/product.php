@@ -6,7 +6,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
 
   <?php
   include "../includes/sidebar.php";
-  include "../includes/admin_topbar.php";
+  include "../includes/topbar.php";
   ?>
 
   <div class="dash-content">
@@ -15,10 +15,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
     </h2>
     <?php
 
-    $sql = "SELECT p.product_name, pd.product_quantity, s.supplier_name
-FROM product p
-INNER JOIN product_details pd ON p.product_id = pd.product_id
-LEFT JOIN supplier s ON p.supplier_id = s.supplier_id";
+    $sql = "CALL GetProductDetails()";
 
     $stmt = $pdo->query($sql);
 
@@ -36,6 +33,7 @@ LEFT JOIN supplier s ON p.supplier_id = s.supplier_id";
     } else {
       echo "No products found.";
     }
+    $stmt->closeCursor();
     ?>
 
     <script>
@@ -58,7 +56,7 @@ LEFT JOIN supplier s ON p.supplier_id = s.supplier_id";
   <?php
 
 } else {
-  header("Location: ../index.php?error=access_error");
+  header("Location: ../index.php?error=Access Error");
   exit();
 }
   ?>

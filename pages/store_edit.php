@@ -24,7 +24,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
         window.location = 'store.php';
     </script>";
 } else {
-    header("Location: ../index.php?error=access_error");
+    header("Location: ../index.php?error=Access Error");
     exit();
 }
-?>

@@ -34,6 +34,12 @@ body {
   color: #595959;
 }
 
+.options a {
+  text-decoration: none;
+  font-weight: 400;
+  color: #595959;
+}
+
 .field {
   height: 50px;
   width: 100%;
@@ -184,5 +190,5 @@ body {
 }
 
 #store_fields, #supplier_fields {
-	display: none;
+	display: block;
 }

@@ -1,6 +1,6 @@
 // Add Product
 function openPopup() {
-    document.getElementById("add-form").style.display = "block";
+    window.location.href = "../create_store.php";
   }
   
   function closePopup() {

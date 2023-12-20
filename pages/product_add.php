@@ -38,6 +38,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
               </script>";
     }
 } else {
-    header("Location: ../index.php?error=access_error");
+    header("Location: ../index.php?error=Access Error");
     exit();
 }

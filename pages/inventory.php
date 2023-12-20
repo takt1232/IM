@@ -7,18 +7,11 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
   <?php
   include "../includes/sidebar.php";
   include "../includes/topbar.php";
+  include "../includes/functions.php";
   ?>
 
   <?php
-  $sql = "SELECT DISTINCT supplier_id, supplier_name FROM supplier";
-  $stmt = $pdo->query($sql);
-  $suppliers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-  $opt = "<select class='supplier-opt' name='product-supplier' required>";
-  foreach ($suppliers as $supplier) {
-    $opt .= "<option value='" . $supplier['supplier_id'] . "'>" . $supplier['supplier_name'] . "</option>";
-  }
-  $opt .= "</select>";
+  $opt = getSupplier($pdo);
   ?>
 
   <div class="dash-content">
@@ -29,7 +22,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
       </span>
     </h2>
     <?php
-    $sql = "SELECT p.product_id, p.product_name, pd.product_price, pd.product_quantity, p.supplier_id FROM product p, product_details pd WHERE p.product_id = pd.product_id";
+    $sql = "CALL GetProductDetails()";
     $result = $pdo->query($sql);
 
     if ($result->rowCount() > 0) {
@@ -51,6 +44,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
     } else {
       echo "No Products found.";
     }
+    $result->closeCursor();
     ?>
 
     <div id="add-form">
@@ -130,7 +124,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
     ?>
   <?php
 } else {
-  header("Location: ../index.php?error=access_error");
+  header("Location: ../index.php?error=Access Error");
   exit();
 }
   ?>

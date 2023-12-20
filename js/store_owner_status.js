@@ -14,20 +14,21 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-function openViewOrderPopup(orderId, userId) {
-        var tableBody = document.querySelector("#view-form .order-table tbody");
-        tableBody.innerHTML = ""; // Clear any existing rows
+function openViewOrderPopup(orderId) {
+    var tableBody = document.querySelector("#view-form .order-table tbody");
+    tableBody.innerHTML = ""; // Clear any existing rows
 
-        // Make an AJAX request to fetch product details
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "store_get_product_details.php?orderId=" + orderId + "&storeId=" + userId, true);
+    // Make an AJAX request to fetch product details
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "get_product_details.php?orderId=" + orderId, true);
 
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 400) {
-                // Success
-                var productDetails = JSON.parse(xhr.responseText);
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 400) {
+            // Success
+            var productDetails = JSON.parse(xhr.responseText);
 
-                productDetails.forEach(function(item) {
+            if (productDetails.length > 0) {
+                productDetails.forEach(function (item) {
                     var row = document.createElement("tr");
                     var productNameCell = document.createElement("td");
                     productNameCell.textContent = item.product_name;
@@ -52,13 +53,23 @@ function openViewOrderPopup(orderId, userId) {
                 // Show the view-form
                 document.getElementById("view-form").style.display = "block";
             } else {
-                // Error
-                console.error('Error fetching product details');
+                // No results found
+                var noResultsRow = document.createElement("tr");
+                var noResultsCell = document.createElement("td");
+                noResultsCell.colSpan = 4; // Span all columns
+                noResultsCell.textContent = "No results found";
+                noResultsRow.appendChild(noResultsCell);
+                tableBody.appendChild(noResultsRow);
+                document.getElementById("view-form").style.display = "block";
             }
-        };
+        } else {
+            // Error
+            console.error('Error fetching product details');
+        }
+    };
 
-        xhr.send();
-    }
+    xhr.send();
+}
 
     function closeViewOrderPopup() {
         document.getElementById("view-form").style.display = "none";

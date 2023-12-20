@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (isset($_SESSION['id']) && isset($_SESSION['username']) && ($_SESSION['role'] === 'store_owner' || $_SESSION['role'] === 'admin')) {
+if (isset($_SESSION['id']) && isset($_SESSION['username']) && ($_SESSION['role'] === 'Store Owner' || $_SESSION['role'] === 'admin')) {
     if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST['store-id']) && !empty($_POST['method-opt'])) {
         // Include the database connection file
         include "../includes/db_connection.php";
@@ -64,26 +64,16 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && ($_SESSION['role']
 
                     // Execute the statement
                     $statement->execute();
-
-                    // Update product_quantity in product_details table
-                    $updateQuery = "UPDATE product_details SET product_quantity = product_quantity - ? WHERE product_id = ?";
-
-                    // Prepare the update statement
-                    $updateStatement = $pdo->prepare($updateQuery);
-
-                    // Bind the parameters
-                    $updateStatement->bindParam(1, $quantity);
-                    $updateStatement->bindParam(2, $productID);
-
-                    // Execute the update statement
-                    $updateStatement->execute();
                 }
 
                 // Commit the transaction
                 $pdo->commit();
 
-                header("Location: order.php");
-                exit();
+                // Success message
+                echo "<script type='text/javascript'>
+                    alert('You\'ve Placed An Order Successfully.');
+                    window.location = 'order.php';
+                </script>";
             } else {
                 // An error occurred while inserting the order
                 echo "Failed to place the order.";
@@ -101,6 +91,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && ($_SESSION['role']
         exit();
     }
 } else {
-    header("Location: ../index.php?error=access_error");
+    header("Location: ../index.php?error=Access Error");
     exit();
 }
+?>

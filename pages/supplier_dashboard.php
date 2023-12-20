@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] === 'supplier') {
+if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] === 'Supplier') {
 	include "../includes/supplier_sidebar.php";
 	include "../includes/supplier_topbar.php";
 ?>
@@ -12,7 +12,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
 <?php
 	include "../includes/footbar.php";
 } else {
-	header("Location: ../index.php?access_error");
+	header("Location: ../index.php?error=Access Error");
 	exit();
 }
 ?>

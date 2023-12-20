@@ -22,8 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const productId = event.target.getAttribute("data-productid");
   const quantityInput = document.getElementById(`${product}-quantity`);
   const quantity = parseInt(quantityInput.value);
-
   const productQuantity = parseInt(event.target.getAttribute("data-quantity"));
+  const productPrice = parseFloat(event.target.getAttribute("data-product-price"));
+
 
   if (quantity > 0) {
     if (quantity > productQuantity) {
@@ -42,10 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
     event.target.setAttribute("data-quantity", updatedQuantity);
 
-    const productPrice = parseFloat(
-      event.target.parentNode.querySelector("p:last-of-type").textContent.slice(1)
-    );
-
     if (cartItems.hasOwnProperty(product)) {
       cartItems[product].quantity += quantity;
     } else {
@@ -54,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
         quantity: quantity,
         price: productPrice
       };
+      console.log(cartItems);
     }
 
     quantityInput.value = 0;
@@ -235,3 +233,19 @@ function openCheckoutPopup() {
 function closeCheckoutPopup() {
   document.getElementById("checkout-form").style.display = "none";
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const activeElements = document.querySelectorAll(".row_active");
+  const inactiveElements = document.querySelectorAll(".row_inactive");
+
+  // Convert is_active values and add visual color indications
+  activeElements.forEach((element) => {
+    element.textContent = "Active";
+    element.style.color = "green"; // Set your desired color for Active
+  });
+
+  inactiveElements.forEach((element) => {
+    element.textContent = "Inactive";
+    element.style.color = "red"; // Set your desired color for Inactive
+  });
+});

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] === 'admin' || 'store_owner') {
+if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] === 'admin' || 'Store Owner') {
     include "../includes/db_connection.php";
 
     $oi = $_POST['order-id'];
@@ -35,6 +35,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
               </script>";
     }
 } else {
-    header("Location: ../index.php?error=access_error");
+    header("Location: ../index.php?error=Access Error");
     exit();
 }

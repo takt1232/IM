@@ -6,50 +6,54 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
 ?>
     <?php
     include "../includes/sidebar.php";
-    include "../includes/admin_topbar.php";
+    include "../includes/topbar.php";
+    include "../includes/functions.php";
     ?>
 
     <?php
-    // Count the number of stores
-    $sqlStore = 'SELECT COUNT(*) AS store_count FROM store';
-    $stmtStore = $pdo->query($sqlStore);
-    $rowStore = $stmtStore->fetch(PDO::FETCH_ASSOC);
-    $nos = $rowStore['store_count'];
+    $table_name1 = 'store'; // Change this to the table you want to count
+    $table_name2 = 'product';
+    $table_name3 = 'supplier';
 
-    // Count the number of products
-    $sqlProduct = 'SELECT COUNT(*) AS product_count FROM product';
-    $stmtProduct = $pdo->query($sqlProduct);
-    $rowProduct = $stmtProduct->fetch(PDO::FETCH_ASSOC);
-    $nop = $rowProduct['product_count'];
+    // Prepare and execute the SQL query using the function
+    $sql = "SELECT GetTableCount(:table_name) AS count_result";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':table_name', $table_name1, PDO::PARAM_STR);
+    $stmt->execute();
 
-    // Count the number of suppliers
-    $sqlSupplier = 'SELECT COUNT(*) AS supplier_count FROM supplier';
-    $stmtSupplier = $pdo->query($sqlSupplier);
-    $rowSupplier = $stmtSupplier->fetch(PDO::FETCH_ASSOC);
-    $noss = $rowSupplier['supplier_count'];
+    // Fetch the count result
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $nos = $row['count_result'];
+    $stmt->closeCursor();
+
+    // Prepare and execute the SQL query using the function
+    $sql = "SELECT GetTableCount(:table_name) AS count_result";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':table_name', $table_name2, PDO::PARAM_STR);
+    $stmt->execute();
+
+    // Fetch the count result
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $nop = $row['count_result'];
+    $stmt->closeCursor();
+
+    // Prepare and execute the SQL query using the function
+    $sql = "SELECT GetTableCount(:table_name) AS count_result";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':table_name', $table_name3, PDO::PARAM_STR);
+    $stmt->execute();
+
+    // Fetch the count result
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $noss = $row['count_result'];
+    $stmt->closeCursor();
 
     ?>
 
     <?php
 
-
-    $sql1 = "SELECT DISTINCT method_id, method FROM payment_method";
-    $stmt1 = $pdo->query($sql1);
-    $opt1 = "<select class='store-opt' name='method-opt' id='method-opt' required>
-        <option disabled selected>Select Method</option>";
-    while ($row = $stmt1->fetch(PDO::FETCH_ASSOC)) {
-        $opt1 .= "<option value='" . $row['method_id'] . "'>" . $row['method'] . "</option>";
-    }
-    $opt1 .= "</select>";
-
-    $sql2 = "SELECT DISTINCT status_id, status FROM payment_status";
-    $stmt2 = $pdo->query($sql2);
-    $opt2 = "<select class='store-opt' name='status-opt' id='status-opt' required>
-        <option disabled selected>Select Method</option>";
-    while ($row = $stmt2->fetch(PDO::FETCH_ASSOC)) {
-        $opt2 .= "<option value='" . $row['status_id'] . "'>" . $row['status'] . "</option>";
-    }
-    $opt2 .= "</select>";
+    $opt1 = generateMethodDropdown($pdo);
+    $opt2 = generateStatusDropdown($pdo);
     ?>
 
     <div class="dash-content">
@@ -69,6 +73,38 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
             <p class="card-number"><?php echo $noss; ?></p>
         </div>
     </div>
+
+    <div class="top-sales-content">
+    <h2>Top 3 Most Sold Products</h2>
+    <div class="top-sales">
+        <div class="timeFrame">
+            <h3>Top 3 for Day:</h3>
+            <?php
+            $currentDate = date('Y-m-d');
+            getTopProductsByTimeFrame($pdo, $currentDate, $currentDate);
+            ?>
+        </div>
+
+        <div class="timeFrame">
+            <h3>Top 3 for Week:</h3>
+            <?php
+            $currentWeekStart = date('Y-m-d', strtotime('monday this week'));
+            $currentWeekEnd = date('Y-m-d', strtotime('sunday this week'));
+            getTopProductsByTimeFrame($pdo, $currentWeekStart, $currentWeekEnd);
+            ?>
+        </div>
+
+        <div class="timeFrame">
+            <h3>Top 3 for Month:</h3>
+            <?php
+            $currentMonthStart = date('Y-m-01');
+            $currentMonthEnd = date('Y-m-t');
+            getTopProductsByTimeFrame($pdo, $currentMonthStart, $currentMonthEnd);
+            ?>
+        </div>
+    </div>
+    </div>
+
 
     <div class="order-table-div">
         <h2>Orders Table</h2>
@@ -187,7 +223,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
 
 <?php
 } else {
-    header("Location: ../index.php?error=access_error");
+    header("Location: ../index.php?error=Access Error");
     exit();
 }
 ?>

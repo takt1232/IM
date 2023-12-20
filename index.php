@@ -15,17 +15,11 @@
          Login
       </div>
       <?php if (isset($_GET['status'])) {
-         if ($_GET['status'] === 'Registration Success') {
-            echo "<p style='color: green;'>" . $_GET['status'] . "</p>";
-         }
+         echo "<p style='color: green;'>" . $_GET['status'] . "</p>";
       }
 
       if (isset($_GET['error'])) {
-         if ($_GET['error'] === 'Incorrect username or Password') {
-            echo "<p style='color: red;'>" . $_GET['error'] . "</p>";
-         } else if ($_GET['error'] === 'access_error') {
-            echo "<p style='color: red;'>" . $_GET['error'] . "</p>";
-         }
+         echo "<p style='color: red;'>" . $_GET['error'] . "</p>";
       }
 
       ?>

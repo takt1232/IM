@@ -20,10 +20,10 @@ try {
     if ($result) {
         echo json_encode($result);
     } else {
-        echo "No results found";
+        echo json_encode(["message" => "No results found"]);
     }
 } catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    echo json_encode(["message" => "Connection failed: " . $e->getMessage()]);
 }
 
 $pdo = null;

@@ -37,12 +37,6 @@ include "db_connection.php";
           </a>
         </li>
         <li>
-          <a href="../pages/admin_message.php">
-            <i class="fas fa-envelope"></i>
-            <span class="link-name">Messages</span>
-          </a>
-        </li>
-        <li>
           <a href="../pages/product.php">
             <i class="fas fa-box-open"></i>
             <span class="link-name">Products</span>

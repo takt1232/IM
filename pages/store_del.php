@@ -8,10 +8,17 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
   try {
     $si = $_POST['store-id'];
 
-    $sql = "DELETE FROM store WHERE store_id = :store_id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':store_id', $si);
-    $stmt->execute();
+    // Start a transaction
+    $pdo->beginTransaction();
+
+    // Delete from users table where user_id matches store_id
+    $sqlStore = "DELETE FROM users WHERE user_id IN (SELECT user_id FROM store WHERE store_id = :store_id)";
+    $stmtStore = $pdo->prepare($sqlStore);
+    $stmtStore->bindParam(':store_id', $si);
+    $stmtStore->execute();
+
+    // Commit the transaction
+    $pdo->commit();
 
     // Success message
     echo "<script type='text/javascript'>
@@ -19,15 +26,16 @@ if (isset($_SESSION['id']) && isset($_SESSION['username']) && $_SESSION['role'] 
       window.location = 'store.php';
     </script>";
   } catch (PDOException $e) {
+    // Rollback the transaction in case of an error
+    $pdo->rollBack();
+
     // Error message
     echo "<script type='text/javascript'>
       alert('Error: " . $e->getMessage() . "');
       window.location = 'store.php';
     </script>";
   }
-
 } else {
-  header("Location: ../index.php?error=access_error");
+  header("Location: ../index.php?error=Access Error");
   exit();
 }
-?>

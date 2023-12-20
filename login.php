@@ -28,33 +28,35 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         if ($row && $stmt->rowCount() === 1) {
             $_SESSION['username'] = $row['username'];
             $_SESSION['password'] = $row['password'];
-            
+
             if ($row['role'] === 'admin') {
                 $_SESSION['id'] = $row['user_id'];
                 $_SESSION['role'] = $row['role'];
                 header("Location: pages/admin_dashboard.php");
                 exit();
-            } else if ($row['role'] === 'store_owner') {
+            } else if ($row['role'] === 'Store Owner') {
                 $_SESSION['id'] = $row['store_id'];
                 $_SESSION['role'] = $row['role'];
                 header("Location: pages/store_owner_dashboard.php");
                 exit();
-            } else if ($row['role'] === 'supplier') {
+            } else if ($row['role'] === 'Supplier') {
                 $_SESSION['id'] = $row['supplier_id'];
                 $_SESSION['role'] = $row['role'];
                 header("Location: pages/supplier_dashboard.php");
                 exit();
+            } else {
+                header("Location: index.php?error=Unable to determine role");
+                exit();
             }
-            
         } else {
             header("Location: index.php?error=Incorrect username or Password");
             exit();
         }
     } catch (PDOException $e) {
-        die("Connection failed: " . $e->getMessage());
+        header("Location: index.php?error=" . urlencode($e->getMessage()));
+        exit();
     }
 } else {
-    header("Location: index.php?error");
+    header("Location: index.php?error=POST error");
     exit();
 }
-?>
