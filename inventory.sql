@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 01, 2023 at 06:53 PM
+-- Generation Time: Dec 20, 2023 at 10:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,6 +42,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `GetProductDetails` ()   BEGIN
     FROM product p
     INNER JOIN product_details pd ON p.product_id = pd.product_id
     INNER JOIN supplier s ON p.supplier_id = s.supplier_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetTop3ProductsByQuantityForTimeFrame` (IN `startDate` DATE, IN `endDate` DATE)   BEGIN
+    SELECT MAX(op.quantity) AS highest_quantity, p.product_name
+    FROM order_product op 
+    LEFT JOIN product p ON op.product_id = p.product_id
+    LEFT JOIN `orders` o ON op.order_id = o.order_id
+    WHERE 
+        (o.order_date BETWEEN startDate AND endDate OR o.order_date IS NULL)
+    GROUP BY p.product_name
+    ORDER BY highest_quantity DESC
+    LIMIT 3;
 END$$
 
 --
@@ -89,7 +101,12 @@ INSERT INTO `activity_log` (`id`, `event_type`, `order_id`, `store_id`, `event_t
 (4, 'Create', 61, 8, '2023-11-29 08:21:38'),
 (5, 'Create', 62, 8, '2023-11-29 08:25:32'),
 (6, 'Create', 63, 8, '2023-11-29 08:25:43'),
-(7, 'Delete', 61, 8, '2023-12-01 05:20:47');
+(7, 'Delete', 61, 8, '2023-12-01 05:20:47'),
+(8, 'Update', 62, 8, '2023-12-20 07:24:09'),
+(9, 'Delete', 63, 8, '2023-12-20 08:04:07'),
+(10, 'Delete', 62, 8, '2023-12-20 08:04:11'),
+(11, 'Create', 64, 8, '2023-12-20 08:11:59'),
+(12, 'Create', 65, 7, '2023-12-20 08:58:13');
 
 -- --------------------------------------------------------
 
@@ -111,8 +128,8 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `store_id`, `total_amount`, `payment_method_id`, `payment_status_id`, `order_date`) VALUES
-(62, 8, 240.00, 2, 2, '2023-11-29'),
-(63, 8, 120.00, 1, 2, '2023-11-29');
+(64, 8, 1020.00, 1, 2, '2023-12-20'),
+(65, 7, 2460.00, 2, 2, '2023-12-20');
 
 --
 -- Triggers `orders`
@@ -146,6 +163,7 @@ DELIMITER ;
 --
 
 CREATE TABLE `order_product` (
+  `order_product_id` int(11) NOT NULL,
   `order_id` int(11) DEFAULT NULL,
   `product_id` int(11) DEFAULT NULL,
   `quantity` int(11) NOT NULL,
@@ -156,17 +174,11 @@ CREATE TABLE `order_product` (
 -- Dumping data for table `order_product`
 --
 
-INSERT INTO `order_product` (`order_id`, `product_id`, `quantity`, `price`) VALUES
-(NULL, 19, 1, 120.00),
-(NULL, NULL, 1, 250.00),
-(NULL, NULL, 1, 250.00),
-(NULL, 22, 1, 120.00),
-(NULL, 22, 1, 120.00),
-(NULL, 22, 1, 120.00),
-(NULL, 19, 1, 120.00),
-(NULL, 19, 1, 120.00),
-(62, 19, 2, 240.00),
-(63, 22, 1, 120.00);
+INSERT INTO `order_product` (`order_product_id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
+(9, 64, 28, 1, 180.00),
+(10, 64, 29, 4, 840.00),
+(11, 65, 26, 10, 1200.00),
+(12, 65, 29, 6, 1260.00);
 
 --
 -- Triggers `order_product`
@@ -237,11 +249,10 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`product_id`, `product_name`, `supplier_id`) VALUES
-(19, 'Frame', 6),
-(20, 'Flower', 7),
-(21, 'Posters', 6),
-(22, 'Floor Lamps', 7),
-(25, 'Painting', 7);
+(26, 'Posters', 6),
+(27, 'Frame', 7),
+(28, 'Flower Vase', 7),
+(29, 'Painting', 7);
 
 -- --------------------------------------------------------
 
@@ -261,11 +272,10 @@ CREATE TABLE `product_details` (
 --
 
 INSERT INTO `product_details` (`product_id`, `product_quantity`, `product_price`, `stocked_Date`) VALUES
-(19, 20, 120, NULL),
-(20, 20, 100, NULL),
-(21, 24, 70, NULL),
-(22, 22, 120, NULL),
-(25, 35, 600, '2023-11-29');
+(26, 15, 120, '2023-12-20'),
+(27, 30, 200, '2023-12-20'),
+(28, 27, 180, '2023-12-20'),
+(29, 14, 210, '2023-12-20');
 
 --
 -- Triggers `product_details`
@@ -298,7 +308,8 @@ CREATE TABLE `store` (
 
 INSERT INTO `store` (`store_id`, `user_id`, `store_name`, `store_address`, `store_email`, `store_phone`) VALUES
 (7, 15, 'Tindahan ni Kim', 'GenSan', 'Kim@gmail.com', '0909009'),
-(8, 19, 'Shop ni Seanne', 'GenSan', 'Seanne@gmail.com', '0909009');
+(8, 19, 'Shop ni Seanne', 'GenSan', 'Seanne@gmail.com', '0909009'),
+(10, 22, 'Tindahan ni Niel', 'Davao', 'Niel@gmail.com', '0909009');
 
 -- --------------------------------------------------------
 
@@ -322,7 +333,8 @@ CREATE TABLE `supplier` (
 
 INSERT INTO `supplier` (`supplier_id`, `user_id`, `supplier_name`, `supplier_phone`, `supplier_address`, `supplier_email`, `is_active`) VALUES
 (6, 17, 'Room Decor', '090909', 'GenSan', 'RDecor@email.com', 1),
-(7, 18, 'Lobby Decor', '090909', 'GenSan', 'LDecor@gmail.com', 1);
+(7, 18, 'Lobby Decor', '090909', 'GenSan', 'LDecor@gmail.com', 1),
+(8, 21, 'House Furniture', '0909009', 'GenSan', 'HouseFurniture@gmail.com', 1);
 
 -- --------------------------------------------------------
 
@@ -346,7 +358,9 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `role`) VALUES
 (15, 'Kim', '123', 'Store Owner'),
 (17, 'Decor', '123', 'Supplier'),
 (18, 'Lobby', '123', 'Supplier'),
-(19, 'Seanne', '123', 'Store Owner');
+(19, 'Seanne', '123', 'Store Owner'),
+(21, 'HouseFurniture', '123', 'Supplier'),
+(22, 'Niel', '123', 'Store Owner');
 
 --
 -- Indexes for dumped tables
@@ -371,6 +385,7 @@ ALTER TABLE `orders`
 -- Indexes for table `order_product`
 --
 ALTER TABLE `order_product`
+  ADD PRIMARY KEY (`order_product_id`),
   ADD KEY `FK_order_product_orders_order_id` (`order_id`),
   ADD KEY `FK_order_product_product_product_id` (`product_id`);
 
@@ -429,13 +444,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_log`
 --
 ALTER TABLE `activity_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+
+--
+-- AUTO_INCREMENT for table `order_product`
+--
+ALTER TABLE `order_product`
+  MODIFY `order_product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `payment_method`
@@ -453,25 +474,25 @@ ALTER TABLE `payment_status`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `store`
 --
 ALTER TABLE `store`
-  MODIFY `store_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `store_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Constraints for dumped tables
@@ -489,8 +510,8 @@ ALTER TABLE `orders`
 -- Constraints for table `order_product`
 --
 ALTER TABLE `order_product`
-  ADD CONSTRAINT `FK_order_product_orders_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE SET NULL,
-  ADD CONSTRAINT `FK_order_product_product_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE NO ACTION ON UPDATE SET NULL;
+  ADD CONSTRAINT `FK_order_product_orders_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_order_product_product_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `product`
